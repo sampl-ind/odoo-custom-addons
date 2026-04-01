@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- AP ESI -->
+        <record id="inst_ap_esi_rajamahendravaram" model="rk.institution">
+            <field name="name">AP ESI — CDS 2 Rajamahendravaram</field>
+            <field name="code">APESI-RJY</field>
+            <field name="institution_type">esi</field>
+            <field name="state">AP</field>
+            <field name="gst_number">37VPNE00343A1D5</field>
+            <field name="nodal_officer">Dr. P. Koteswar</field>
+            <field name="email">cds2-esih-rjmv@ap.gov.in</field>
+            <field name="address">Opp: A.P. Paper Mills, Sreeramnagar, Rajamahendravaram, E.G. Dist, Pin-533105</field>
+            <field name="cds_code">CDS 2 Rajamahendravaram</field>
+            <field name="payment_mode">cheque</field>
+            <field name="notes">Claim free period: 90 days standard; Midas Care RC 166/169 = 120 days</field>
+        </record>
+
+        <record id="inst_ap_esi_hyderabad" model="rk.institution">
+            <field name="name">AP ESI — Hyderabad Region</field>
+            <field name="code">APESI-HYD</field>
+            <field name="institution_type">esi</field>
+            <field name="state">AP</field>
+            <field name="payment_mode">rtgs</field>
+        </record>
+
+        <!-- TG ESI -->
+        <record id="inst_tg_esi" model="rk.institution">
+            <field name="name">TG ESI — Telangana</field>
+            <field name="code">TGESI</field>
+            <field name="institution_type">esi</field>
+            <field name="state">TG</field>
+            <field name="payment_mode">rtgs</field>
+        </record>
+
+        <!-- APSMIDC -->
+        <record id="inst_apsmidc" model="rk.institution">
+            <field name="name">APSMIDC — AP State Medical Supplies Infrastructure Development Corp.</field>
+            <field name="code">APSMIDC</field>
+            <field name="institution_type">smidc</field>
+            <field name="state">AP</field>
+            <field name="payment_mode">rtgs</field>
+        </record>
+
+        <!-- TSMSIDC -->
+        <record id="inst_tsmsidc" model="rk.institution">
+            <field name="name">TSMSIDC — Telangana State Medical Services Infrastructure Development Corp.</field>
+            <field name="code">TSMSIDC</field>
+            <field name="institution_type">smidc</field>
+            <field name="state">TG</field>
+            <field name="payment_mode">rtgs</field>
+        </record>
+
+        <!-- DHS Goa / MSD -->
+        <record id="inst_dhs_goa" model="rk.institution">
+            <field name="name">DHS Goa → Medical Stores Depot (MSD)</field>
+            <field name="code">DHSGOA</field>
+            <field name="institution_type">dhs</field>
+            <field name="state">GA</field>
+            <field name="payment_mode">rtgs</field>
+        </record>
+
+        <!-- CGHS Delhi -->
+        <record id="inst_cghs_delhi" model="rk.institution">
+            <field name="name">CGHS — Central Government Health Scheme, Delhi</field>
+            <field name="code">CGHS-DL</field>
+            <field name="institution_type">cghs</field>
+            <field name="state">DL</field>
+            <field name="payment_mode">neft</field>
+        </record>
+
+        <!-- Defence -->
+        <record id="inst_defence" model="rk.institution">
+            <field name="name">Defence Health Services</field>
+            <field name="code">DHS-DEF</field>
+            <field name="institution_type">defence</field>
+            <field name="state">OTHER</field>
+            <field name="payment_mode">cheque</field>
+        </record>
+
+    </data>
+</odoo>
