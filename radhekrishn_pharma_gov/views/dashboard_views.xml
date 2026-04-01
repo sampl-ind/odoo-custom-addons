@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Dashboard — Kanban summary cards                             -->
+    <!-- ============================================================ -->
+    <record id="view_rk_dashboard_kanban" model="ir.ui.view">
+        <field name="name">rk.dashboard.kanban</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" create="false">
+                <field name="rk_stage"/>
+                <field name="amount_total"/>
+                <field name="rk_commission_amount"/>
+                <field name="rk_commission_pending"/>
+                <field name="rk_supply_penalty_amount"/>
+                <field name="rk_claim_interest_amount"/>
+                <field name="rk_is_overdue_supply"/>
+                <field name="rk_is_claim_overdue"/>
+                <field name="rk_institution_id"/>
+                <field name="rk_vendor_company_id"/>
+                <field name="rk_po_number"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill"
+                             style="min-height: 90px;">
+                            <div class="o_kanban_record_body">
+                                <strong style="font-size: 13px;">
+                                    <t t-esc="record.rk_po_number.value or record.name.value"/>
+                                </strong>
+                                <div class="text-muted" style="font-size: 11px;">
+                                    <t t-esc="record.rk_institution_id.value"/>
+                                </div>
