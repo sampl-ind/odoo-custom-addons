@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Wizard 1: Monthly Commission Summary                         -->
+    <!-- ============================================================ -->
+    <record id="view_rk_commission_summary_wizard" model="ir.ui.view">
+        <field name="name">rk.commission.summary.wizard.form</field>
+        <field name="model">rk.commission.summary.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Commission Summary">
+                <group string="Filter Options">
+                    <group>
+                        <field name="vendor_id"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="stage_filter"/>
+                    </group>
+                    <group string="Preview">
+                        <field name="po_count" readonly="1"/>
+                        <field name="total_commission" readonly="1" widget="monetary"/>
+                        <field name="total_pending" readonly="1" widget="monetary"
+                               decoration-danger="total_pending &gt; 0"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate_report" type="object"
+                            string="Generate PDF Report" class="btn-primary"/>
+                    <button name="action_view_pos" type="object"
+                            string="View Matching POs" class="btn-secondary"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_rk_commission_summary_wizard" model="ir.actions.act_window">
+        <field name="name">Commission Summary Report</field>
+        <field name="res_model">rk.commission.summary.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Wizard 2: Bulk Payment from Institution                      -->
+    <!-- ============================================================ -->
+    <record id="view_rk_bulk_payment_wizard" model="ir.ui.view">
+        <field name="name">rk.bulk.payment.wizard.form</field>
+        <field name="model">rk.bulk.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Record Bulk Institution Payment">
+                <group string="Payment Details">
+                    <group>
+                        <field name="institution_id"/>
+                        <field name="payment_date"/>
+                        <field name="cheque_rtgs_number"/>
+                        <field name="payment_instrument_date"/>
+                    </group>
+                    <group>
+                        <field name="total_amount" widget="monetary"/>
+                        <field name="tds_deducted" widget="monetary"/>
+                        <field name="security_deposit" widget="monetary"/>
+                        <field name="penalty_deducted" widget="monetary"/>
+                        <field name="net_received" readonly="1" widget="monetary"
+                               class="fw-bold"/>
+                    </group>
+                </group>
+                <group string="Notes">
+                    <field name="notes" nolabel="1" colspan="2"
+                           placeholder="Details of deductions, payment reference, etc."/>
+                </group>
+                <group string="Select Purchase Orders">
+                    <field name="po_total" readonly="1" widget="monetary" string="Total PO Value"/>
+                    <field name="po_ids" widget="many2many_checkboxes"
+                           domain="[('rk_institution_id','=',institution_id),('rk_stage','=','qc_cleared')]"
+                           colspan="2" nolabel="1">
+                        <list>
+                            <field name="rk_po_number"/>
+                            <field name="rk_institution_id"/>
+                            <field name="rk_qc_date"/>
+                            <field name="amount_total" widget="monetary"/>
+                            <field name="rk_stage"/>
+                        </list>
+                    </field>
+                </group>
+                <footer>
+                    <button name="action_apply_payment" type="object"
+                            string="Apply Payment to Selected POs" class="btn-primary"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_rk_bulk_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Record Bulk Payment</field>
+        <field name="res_model">rk.bulk.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
