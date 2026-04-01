@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Pre-loaded Rate Contract master data from CLAIM__SHEET_PROCEDURE.xlsx
+        All 12 product x vendor x institution combinations.
+
+        NOTE: vendor_id, product_id, and institution_ids are intentionally NOT set here.
+        They are set automatically by the post_init_hook (hooks.py) which runs after install
+        and creates/finds the correct vendor partners, drug products, and links institutions.
+        Do not add vendor_id refs here — they will be wrong at XML load time.
+    -->
+    <data noupdate="0">
+
+        <!-- ============================================================ -->
+        <!-- RC 169 — AP ESI + TG ESI                                     -->
+        <!-- ============================================================ -->
+
+        <!-- 1. Calcium OS -->
+        <record id="rc_169_calcium_os" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">1795</field>
+            <field name="brand_name">Triple A Cal OS</field>
+            <!-- Replace ref with actual vendor partner XML ID after creating vendors -->
+            <field name="rate_per_unit">9.57</field>
+            <field name="margin_percent">22.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 1795 | USV | AP ESI + TG ESI | Margin 22%</field>
+        </record>
+
+        <!-- 2. Calcium FD -->
+        <record id="rc_169_calcium_fd" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2111</field>
+            <field name="brand_name">Triple A Cal FD</field>
+            <field name="rate_per_unit">8.13</field>
+            <field name="margin_percent">22.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2111 | USV | AP ESI + TG ESI | Margin 22%</field>
+        </record>
+
+        <!-- 3. Cough Syrup / Prospan -->
+        <record id="rc_169_cough_syrup" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2115</field>
+            <field name="brand_name">Prospan Syrup 100ml</field>
+            <field name="rate_per_unit">75.0</field>
+            <field name="margin_percent">22.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2115 | USV | AP ESI + TG ESI | Margin 22% | Current active PO: 10282600172 ₹7,50,000</field>
+        </record>
+
+        <!-- 4. Diclofenac Spray / Relispray — Midas Care — RC 169 -->
+        <record id="rc_169_diclofenac_midas" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2216</field>
+            <field name="brand_name">Relispray</field>
+            <field name="rate_per_unit">73.0</field>
+            <field name="margin_percent">18.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">120</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2216 | Midas Care | AP ESI + TG ESI | Margin 18% | Claim free 120 days</field>
+        </record>
+
+        <!-- 5. AntiOxidant Tab / Canate — Ajantha -->
+        <record id="rc_169_antioxidant_ajantha" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2317</field>
+            <field name="brand_name">Canate</field>
+            <field name="rate_per_unit">2.5</field>
+            <field name="margin_percent">20.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2317 | Ajantha | AP ESI + TG ESI | Margin 20%</field>
+        </record>
+
+        <!-- 6. Astymin M Forte — Tablets India -->
+        <record id="rc_169_astymin_forte" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2418</field>
+            <field name="brand_name">Astymin M Forte Cap</field>
+            <field name="rate_per_unit"=7.4</field>
+            <field name="margin_percent">27.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2418 | Tablets India | AP ESI + TG ESI | Margin 27%</field>
+        </record>
+
+        <!-- 7. Bifilac HP Cap — Tablets India -->
+        <record id="rc_169_bifilac" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2519</field>
+            <field name="brand_name">Bifilac HP Cap</field>
+            <field name="rate_per_unit">8.0</field>
+            <field name="margin_percent">27.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2519 | Tablets India | AP ESI + TG ESI | Margin 27%</field>
+        </record>
+
+        <!-- 8. Astyfer XT Tab — Tablets India — RC 169 -->
+        <record id="rc_169_astyfer_xt" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2620</field>
+            <field name="brand_name">Astyfer XT Tab</field>
+            <field name="rate_per_unit">7.6</field>
+            <field name="margin_percent">27.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2620 | Tablets India | AP ESI + TG ESI | Margin 27%</field>
+        </record>
+
+        <!-- 9. Biors Sachet — Tablets India -->
+        <record id="rc_169_biors" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2721</field>
+            <field name="brand_name">Biors Sachet</field>
+            <field name="rate_per_unit">11.0</field>
+            <field name="margin_percent">27.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2721 | Tablets India | AP ESI + TG ESI | Margin 27%</field>
+        </record>
+
+        <!-- 10. Neutrosec Liquid — Tablets India — RC VALIDITY MAY 2026 (expiring soon) -->
+        <record id="rc_169_neutrosec" model="rk.rc.agreement">
+            <field name="rc_number">169</field>
+            <field name="item_code">2822</field>
+            <field name="brand_name">Neutrosec Liquid</field>
+            <field name="rate_per_unit">75.0</field>
+            <field name="margin_percent">27.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2026-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 169 | Item 2822 | Tablets India | AP ESI + TG ESI | Margin 27% | RC EXPIRING MAY 2026 — RENEWAL NEEDED</field>
+        </record>
+
+        <!-- 11. Diclofenac Spray / Relispray — Midas Care — RC 166 — APSMIDC -->
+        <record id="rc_166_diclofenac_apsmidc" model="rk.rc.agreement">
+            <field name="rc_number">166</field>
+            <field name="item_code">2923</field>
+            <field name="brand_name">Relispray</field>
+            <field name="rate_per_unit">30.0</field>
+            <field name="margin_percent">10.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 166 | Item 2923 | Midas Care | APSMIDC only | Margin 10%</field>
+        </record>
+
+        <!-- 12. Astyfer XT Tab — Tablets India — RC 159 — TSMSIDC -->
+        <record id="rc_159_astyfer_tsmsidc" model="rk.rc.agreement">
+            <field name="rc_number">159</field>
+            <field name="item_code">3024</field>
+            <field name="brand_name">Astyfer XT Tab</field>
+            <field name="rate_per_unit"=7.6</field>
+            <field name="margin_percent">10.0</field>
+            <field name="gst_percent">5.0</field>
+            <field name="claim_free_days">90</field>
+            <field name="claim_penalty_percent_per_week">0.5</field>
+            <field name="supply_days_normal">42</field>
+            <field name="supply_days_extension">35</field>
+            <field name="supply_penalty_percent_per_week">2.0</field>
+            <field name="supply_penalty_max_percent">10.0</field>
+            <field name="rc_validity_date">2027-05-01</field>
+            <field name="agreement_validity_date">2027-03-01</field>
+            <field name="status">active</field>
+            <field name="notes">RC 159 | Item 3024 | Tablets India | TSMSIDC only | Margin 10%</field>
+        </record>
+
+    </data>
+</odoo>
