@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level menu -->
+    <menuitem id="menu_rk_pharma_root"
+              name="Govt Supply"
+              sequence="25"
+              web_icon="radhekrishn_pharma_gov,static/description/icon.png"/>
+
+    <!-- PO Pipeline -->
+    <menuitem id="menu_rk_po_pipeline"
+              name="PO Pipeline"
+              parent="menu_rk_pharma_root"
+              action="action_rk_dashboard"
+              sequence="10"/>
+
+    <!-- Alerts submenu -->
+    <menuitem id="menu_rk_alerts"
+              name="Alerts"
+              parent="menu_rk_pharma_root"
+              sequence="20"/>
+
+    <menuitem id="menu_rk_overdue_supply"
+              name="Overdue Supply"
+              parent="menu_rk_alerts"
+              action="action_po_overdue_supply"
+              sequence="10"/>
+
+    <menuitem id="menu_rk_commission_pending"
+              name="Commission Pending"
+              parent="menu_rk_alerts"
+              action="action_po_commission_pending"
+              sequence="20"/>
+
+    <menuitem id="menu_rk_all_alerts"
+              name="All Alerts"
+              parent="menu_rk_alerts"
+              action="action_rk_alerts_dashboard"
+              sequence="30"/>
+
+    <!-- Reports submenu -->
+    <menuitem id="menu_rk_reports"
+              name="Reports"
+              parent="menu_rk_pharma_root"
+              sequence="25"/>
+
+    <menuitem id="menu_rk_commission_analysis"
+              name="Commission Analysis"
+              parent="menu_rk_reports"
+              action="action_rk_commission_analysis"
+              sequence="10"/>
+
+    <menuitem id="menu_rk_commission_summary_wizard"
+              name="Monthly Commission Summary"
+              parent="menu_rk_reports"
+              action="action_rk_commission_summary_wizard"
+              sequence="20"/>
+
+    <menuitem id="menu_rk_bulk_payment"
+              name="Record Bulk Payment"
+              parent="menu_rk_reports"
+              action="action_rk_bulk_payment_wizard"
+              sequence="30"/>
+
+    <!-- Masters submenu -->
+    <menuitem id="menu_rk_masters"
+              name="Masters"
+              parent="menu_rk_pharma_root"
+              sequence="30"/>
+
+    <menuitem id="menu_rk_institution"
+              name="Institutions"
+              parent="menu_rk_masters"
+              action="action_rk_institution"
+              sequence="10"/>
+
+    <menuitem id="menu_rk_rc_agreement"
+              name="Rate Contracts"
+              parent="menu_rk_masters"
+              action="action_rk_rc_agreement"
+              sequence="20"/>
+
+</odoo>
