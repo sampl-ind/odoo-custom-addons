@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Daily alert: Supply overdue POs -->
+    <record id="ir_cron_supply_overdue_alert" model="ir.cron">
+        <field name="name">Radhekrishn — Daily Supply Overdue Check</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="state">code</field>
+        <field name="code">
+# Find all POs that are overdue and not yet closed
+import datetime
+today_str = datetime.date.today().strftime('%Y-%m-%d')
+overdue_pos = env['purchase.order'].search([
+    ('rk_stage', 'not in', ['qc_cleared', 'inst_paid', 'closed']),
+    ('rk_supply_due_date', '!=', False),
+    ('rk_supply_due_date', '&lt;', today_str),
+    ('rk_is_overdue_supply', '=', True),
+])
+for po in overdue_pos:
+    # Post a chatter message on the PO
+    po.message_post(
+        body='Supply overdue by %d day(s) (%d week(s)). Penalty accrued: ₹%.2f' % (
+            po.rk_delay_days,
+            po.rk_delay_weeks,
+            po.rk_supply_penalty_amount,
+        ),
+        subject='Supply Overdue Alert',
+        message_type='comment',
+        subtype_xmlid='mail.mt_note',
+    )
+        </field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <!-- Daily alert: Claim interest overdue -->
+    <record id="ir_cron_claim_overdue_alert" model="ir.cron">
+        <field name="name">Radhekrishn — Daily Claim Interest Check</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="state">code</field>
+        <field name="code">
+# Find POs where institution payment is overdue
+import datetime
+claim_overdue = env['purchase.order'].search([
+    ('rk_stage', 'not in', ['po_received', 'forwarded', 'dispatched', 'closed']),
+    ('rk_qc_date', '!=', False),
+    ('rk_is_claim_overdue', '=', True),
+    ('rk_inst_payment_date', '=', False),
+])
+for po in claim_overdue:
+    po.message_post(
+        body='Claim interest: Institution payment overdue by %d week(s). Interest accrued: ₹%.2f on bill amount ₹%.2f.' % (
+            po.rk_claim_overdue_weeks,
+            po.rk_claim_interest_amount,
+            po.rk_gross_amount_received or po.amount_total,
+        ),
+        subject='Claim Interest Accruing',
+        message_type='comment',
+        subtype_xmlid='mail.mt_note',
+    )
+        </field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <!-- Weekly RC expiry alert (runs every Monday) -->
+    <record id="ir_cron_rc_expiry_alert" model="ir.cron">
+        <field name="name">Radhekrishn — Weekly RC Expiry Check</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="state">code</field>
+        <field name="code">
+import datetime
+today = datetime.date.today()
+alert_date = today + datetime.timedelta(days=60)
+today_str = today.strftime('%Y-%m-%d')
+alert_str = alert_date.strftime('%Y-%m-%d')
+expiring_rcs = env['rk.rc.agreement'].search([
+    ('status', '=', 'active'),
+    ('rc_validity_date', '!=', False),
+    ('rc_validity_date', '&lt;=', alert_str),
+    ('rc_validity_date', '&gt;=', today_str),
+])
+for rc in expiring_rcs:
+    days_left = (rc.rc_validity_date - today).days
+    rc.message_post(
+        body='RC validity expiring in %d day(s) on %s. Please initiate renewal with %s.' % (
+            days_left,
+            rc.rc_validity_date,
+            rc.vendor_id.name if rc.vendor_id else 'vendor',
+        ),
+        subject='RC Expiry Alert — %d days left' % days_left,
+        message_type='comment',
+        subtype_xmlid='mail.mt_note',
+    )
+        </field>
+        <field name="interval_number">7</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+</odoo>
