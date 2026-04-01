@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report action: Delivery Challan -->
+    <record id="action_report_rk_delivery_challan" model="ir.actions.report">
+        <field name="name">Delivery Challan</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">radhekrishn_pharma_gov.report_delivery_challan_template</field>
+        <field name="report_file">radhekrishn_pharma_gov.report_delivery_challan_template</field>
+        <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- QWeb Template: Delivery Challan -->
+    <template id="report_delivery_challan_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- Watermark strip -->
+                        <div style="background:#1a735c;color:white;padding:6px 12px;border-radius:4px;margin-bottom:12px;text-align:center;font-size:11px;letter-spacing:2px">
+                            ESI SUPPLY — NOT FOR SALE &#160;|&#160; MRP BLOCKED
+                        </div>
+
+                        <!-- Header -->
+                        <div class="row">
+                            <div class="col-7">
+                                <h3 style="color:#1a735c;margin-bottom:4px">DELIVERY CHALLAN</h3>
+                                <p style="font-size:11px;margin:0">
+                                    <strong>Radhekrishn Biotech</strong><br/>
+                                    Tarnaka, Secunderabad, Telangana — 500017<br/>
+                                    GST: 36AGNPT7076N1ZB<br/>
+                                    (Authorised Distributor)
+                                </p>
+                            </div>
+                            <div class="col-5">
+                                <table class="table table-sm table-bordered" style="font-size:11px">
+                                    <tr style="background:#f5f5f5">
+                                        <td><strong>Challan No.</strong></td>
+                                        <td><t t-esc="o.rk_po_number or o.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PO Number</strong></td>
+                                        <td style="color:#1a735c;font-weight:bold"><t t-esc="o.rk_po_number or ''"/></td>
+                                    </tr>
+                                    <tr style="background:#f5f5f5">
+                                        <td><strong>PO Date</strong></td>
+                                        <td><t t-esc="str(o.rk_po_approval_date) if o.rk_po_approval_date else ''"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>RC Number</strong></td>
+                                        <td><t t-esc="o.rk_rc_number or ''"/></td>
+                                    </tr>
+                                    <tr style="background:#f5f5f5">
+                                        <td><strong>Dispatch Date</strong></td>
+                                        <td><t t-esc="str(o.rk_dispatch_date) if o.rk_dispatch_date else '........................'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>LR / GR No.</strong></td>
+                                        <td><t t-esc="o.rk_lr_number or '........................'"/></td>
+                                    </tr>
+                                    <tr style="background:#f5f5f5">
+                                        <td><strong>Transporter</strong></td>
+                                        <td><t t-esc="o.rk_transporter or '........................'"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr style="border-color:#1a735c"/>
+
+                        <!-- From / To -->
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div style="border:1px solid #dee2e6;border-radius:4px;padding:10px;background:#f8fff8">
+                                    <strong style="font-size:11px;color:#1a735c">DISPATCHED FROM (Vendor):</strong><br/>
+                                    <p style="font-size:11px;margin-top:4px">
+                                        <strong><t t-esc="o.rk_vendor_company_id.name if o.rk_vendor_company_id else '........................'"/></strong><br/>
+                                        <t t-if="o.rk_vendor_company_id and o.rk_vendor_company_id.street">
+                                            <t t-esc="o.rk_vendor_company_id.street"/><br/>
+                                        </t>
+                                        <t t-if="o.rk_vendor_company_id and o.rk_vendor_company_id.city">
+                                            <t t-esc="o.rk_vendor_company_id.city"/>
+                                        </t>
+                                        <t t-if="o.rk_vendor_company_id and o.rk_vendor_company_id.vat">
+                                            <br/>GST: <t t-esc="o.rk_vendor_company_id.vat"/>
+                                        </t>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div style="border:1px solid #dee2e6;border-radius:4px;padding:10px;background:#f8f8ff">
+                                    <strong style="font-size:11px;color:#185fa5">DELIVER TO (Institution):</strong><br/>
+                                    <p style="font-size:11px;margin-top:4px">
+                                        <strong><t t-esc="o.rk_institution_id.name if o.rk_institution_id else '........................'"/></strong><br/>
+                                        <t t-if="o.rk_institution_id and o.rk_institution_id.cds_code">
+                                            <t t-esc="o.rk_institution_id.cds_code"/><br/>
+                                        </t>
+                                        <t t-if="o.rk_institution_id and o.rk_institution_id.address">
+                                            <t t-esc="o.rk_institution_id.address"/><br/>
+                                        </t>
+                                        <t t-if="o.rk_institution_id and o.rk_institution_id.nodal_officer">
+                                            Attn: <t t-esc="o.rk_institution_id.nodal_officer"/>
+                                        </t>
+                                        <t t-if="o.rk_institution_id and o.rk_institution_id.gst_number">
+                                            <br/>GST: <t t-esc="o.rk_institution_id.gst_number"/>
+                                        </t>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items table -->
+                        <h6 style="color:#1a735c;margin-top:14px;border-bottom:1px solid #1a735c;padding-bottom:3px">
+                            Items Dispatched
+                        </h6>
+                        <table class="table table-bordered" style="font-size:11px">
+                            <thead style="background:#1a735c;color:white">
+                                <tr>
+                                    <th style="width:4%">#</th>
+                                    <th style="width:20%">Generic Name</th>
+                                    <th style="width:16%">Brand Name</th>
+                                    <th style="width:10%">RC Item Code</th>
+                                    <th style="width:12%">Batch No.</th>
+                                    <th style="width:10%">Mfg. Date</th>
+                                    <th style="width:10%">Expiry Date</th>
+                                    <th style="width:8%" class="text-end">Qty</th>
+                                    <th style="width:10%" class="text-end">Unit Rate (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <tr>
+                                        <td><t t-esc="line_index + 1"/></td>
+                                        <td><t t-esc="line.product_id.name if line.product_id else ''"/></td>
+                                        <td style="font-weight:bold;color:#1a735c"><t t-esc="line.rk_brand_name or ''"/></td>
+                                        <td><t t-esc="line.rk_item_code or ''"/></td>
+                                        <td style="font-weight:bold"><t t-esc="o.rk_batch_number or '........................'"/></td>
+                                        <td><t t-esc="str(o.rk_mfg_date) if o.rk_mfg_date else '...........'"/></td>
+                                        <td style="color:#c00"><t t-esc="str(o.rk_expiry_date) if o.rk_expiry_date else '...........'"/></td>
+                                        <td class="text-end" style="font-weight:bold">
+                                            <t t-esc="'{:,.0f}'.format(line.product_qty)"/> <t t-esc="line.product_uom.name"/>
+                                        </td>
+                                        <td class="text-end"><t t-esc="'{:,.4f}'.format(line.price_unit)"/></td>
+                                    </tr>
+                                </t>
+                                <!-- Empty rows for manual fill if needed -->
+                                <tr style="color:#ccc">
+                                    <td colspan="9" style="height:30px;font-size:10px;font-style:italic;text-align:center">
+                                        — End of items —
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- ESI compliance checklist -->
+                        <div class="row mt-2">
+                            <div class="col-7">
+                                <div style="border:1px solid #dee2e6;border-radius:4px;padding:10px;font-size:10px">
+                                    <strong style="color:#1a735c">ESI Compliance Checklist</strong>
+                                    <table style="width:100%;margin-top:6px">
+                                        <tr>
+                                            <td>☐ MRP blocked on outer cartons</td>
+                                            <td>☐ MRP blocked on individual strips/bottles</td>
+                                        </tr>
+                                        <tr>
+                                            <td>☐ "ESI supply not for sale" stamped</td>
+                                            <td>☐ ISI/ISO mark present</td>
+                                        </tr>
+                                        <tr>
+                                            <td>☐ Batch test report enclosed</td>
+                                            <td>☐ Packing sealed properly</td>
+                                        </tr>
+                                        <tr>
+                                            <td>☐ Temperature maintained (if applicable)</td>
+                                            <td>☐ Invoice copy enclosed</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div style="border:1px solid #dee2e6;border-radius:4px;padding:10px;font-size:10px">
+                                    <strong style="color:#1a735c">Drug Analysis Report</strong>
+                                    <p style="margin-top:4px">
+                                        Batch No.: <strong><t t-esc="o.rk_batch_number or '........................'"/></strong><br/>
+                                        QC Report Ref: <t t-esc="o.rk_qc_report_ref or '........................'"/><br/>
+                                        Upload on eAushadhi portal before or at time of supply.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Signatures -->
+                        <div class="row mt-3" style="font-size:10px">
+                            <div class="col-4 text-center" style="border-top:1px solid #333;padding-top:6px;margin-top:30px">
+                                Prepared by (Radhekrishn Biotech)
+                            </div>
+                            <div class="col-4 text-center" style="border-top:1px solid #333;padding-top:6px;margin-top:30px">
+                                Dispatched by (Vendor — <t t-esc="o.rk_vendor_company_id.name if o.rk_vendor_company_id else ''"/>)
+                            </div>
+                            <div class="col-4 text-center" style="border-top:1px solid #333;padding-top:6px;margin-top:30px">
+                                Received by (Institution — <t t-esc="o.rk_institution_id.code if o.rk_institution_id else ''"/>)<br/>
+                                Date: ........................
+                            </div>
+                        </div>
+
+                        <!-- Footer note -->
+                        <p style="font-size:9px;color:#999;margin-top:10px;border-top:1px solid #eee;padding-top:4px">
+                            Any shortage, breakage or damage during transit must be reported immediately.
+                            Replacement will be at vendor's cost. Supply valid only to above destination —
+                            no extra payment for transportation. PO No. <t t-esc="o.rk_po_number or o.name"/> dated <t t-esc="str(o.rk_po_approval_date) if o.rk_po_approval_date else ''"/>.
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
