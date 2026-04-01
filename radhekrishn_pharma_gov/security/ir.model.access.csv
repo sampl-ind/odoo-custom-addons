@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rk_institution_user,rk.institution user,model_rk_institution,purchase.group_purchase_user,1,1,1,0
+access_rk_institution_manager,rk.institution manager,model_rk_institution,purchase.group_purchase_manager,1,1,1,1
+access_rk_rc_agreement_user,rk.rc.agreement user,model_rk_rc_agreement,purchase.group_purchase_user,1,1,1,0
+access_rk_rc_agreement_manager,rk.rc.agreement manager,model_rk_rc_agreement,purchase.group_purchase_manager,1,1,1,1
+access_rk_commission_wizard_user,rk.commission.summary.wizard user,model_rk_commission_summary_wizard,purchase.group_purchase_user,1,1,1,1
+access_rk_bulk_payment_wizard_user,rk.bulk.payment.wizard user,model_rk_bulk_payment_wizard,purchase.group_purchase_user,1,1,1,1
