@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Institution — List view                                      -->
+    <!-- ============================================================ -->
+    <record id="view_rk_institution_list" model="ir.ui.view">
+        <field name="name">rk.institution.list</field>
+        <field name="model">rk.institution</field>
+        <field name="arch" type="xml">
+            <list string="Institutions" decoration-muted="active == False">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="institution_type"/>
+                <field name="state"/>
+                <field name="nodal_officer"/>
+                <field name="email"/>
+                <field name="rc_count" string="Active RCs"/>
+                <field name="po_count" string="POs"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Institution — Form view                                      -->
+    <!-- ============================================================ -->
+    <record id="view_rk_institution_form" model="ir.ui.view">
+        <field name="name">rk.institution.form</field>
+        <field name="model">rk.institution</field>
+        <field name="arch" type="xml">
+            <form string="Institution">
+                <header>
+                    <button name="action_view_pos" type="object"
+                            string="View All POs" class="btn-secondary"/>
+                    <button name="action_view_rcs" type="object"
+                            string="View Rate Contracts" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pos" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="po_count" widget="statinfo" string="POs"/>
+                        </button>
+                        <button name="action_view_rcs" type="object"
+                                class="oe_stat_button" icon="fa-handshake-o">
+                            <field name="rc_count" widget="statinfo" string="Active RCs"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Institution Name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identity">
+                            <field name="code"/>
+                            <field name="institution_type"/>
+                            <field name="state"/>
+                            <field name="gst_number"/>
+                            <field name="pan_number"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="nodal_officer"/>
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="cds_code"/>
+                            <field name="eaushadhi_username"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Payment">
+                            <field name="payment_mode"/>
+                            <field name="avg_payment_days"/>
+                        </group>
+                        <group string="Status">
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <field name="address" placeholder="Full postal address"/>
+                    <field name="notes" placeholder="Internal notes..."/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_rk_institution_search" model="ir.ui.view">
+        <field name="name">rk.institution.search</field>
+        <field name="model">rk.institution</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="ESI" name="esi" domain="[('institution_type','=','esi')]"/>
+                <filter string="SMIDC" name="smidc" domain="[('institution_type','=','smidc')]"/>
+                <filter string="AP" name="ap" domain="[('state','=','AP')]"/>
+                <filter string="TG" name="tg" domain="[('state','=','TG')]"/>
+                <filter string="Archived" name="archived" domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_rk_institution" model="ir.actions.act_window">
+        <field name="name">Institutions</field>
+        <field name="res_model">rk.institution</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_rk_institution_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add your first government institution
+            </p>
+            <p>Store AP ESI, TG ESI, APSMIDC, TSMSIDC and other institutions here.</p>
+        </field>
+    </record>
+
+</odoo>
