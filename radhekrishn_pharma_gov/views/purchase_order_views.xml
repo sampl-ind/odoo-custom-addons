@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Purchase Order — Form view (inherited)                        -->
+    <!-- ============================================================ -->
+    <record id="view_purchase_order_form_rk" model="ir.ui.view">
+        <field name="name">purchase.order.form.rk</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add stage statusbar at the top -->
+            <xpath expr="//header" position="inside">
+                <field name="rk_stage" widget="statusbar"
+                       statusbar_visible="po_received,forwarded,dispatched,qc_cleared,inst_paid,closed"/>
+            </xpath>
+
+            <!-- Add action buttons in header -->
+            <xpath expr="//button[@name='button_approve']" position="before">
+                <button name="action_send_po_to_vendor" type="object"
+                        string="Email to Vendor" class="btn-secondary"
+                        invisible="rk_stage not in ('po_received','forwarded')"/>
+                <button name="action_send_overdue_alert" type="object"
+                        string="Send Overdue Alert" class="btn-warning"
+                        invisible="not rk_is_overdue_supply"/>
+                <button name="action_send_claim_interest_notice" type="object"
+                        string="Send Claim Notice" class="btn-warning"
+                        invisible="not rk_is_claim_overdue"/>
+                <button name="action_stage_forwarded" type="object"
+                        string="Mark Forwarded" class="btn-primary"
+                        invisible="rk_stage != 'po_received'"/>
+                <button name="action_stage_dispatched" type="object"
+                        string="Mark Dispatched" class="btn-primary"
+                        invisible="rk_stage != 'forwarded'"/>
+                <button name="action_stage_qc_cleared" type="object"
+                        string="Mark QC Cleared" class="btn-primary"
+                        invisible="rk_stage != 'dispatched'"/>
+                <button name="action_stage_institution_paid" type="object"
+                        string="Mark Institution Paid" class="btn-primary"
+                        invisible="rk_stage != 'qc_cleared'"/>
+                <button name="action_create_commission_invoice" type="object"
+                        string="Generate Commission Invoice" class="btn-success"
+                        invisible="rk_stage != 'inst_paid' or rk_sale_order_id != False"/>
+                <button name="action_stage_closed" type="object"
+                        string="Close PO" class="btn-secondary"
+                        invisible="rk_stage != 'inst_paid'"/>
+            </xpath>
+
+            <!-- Inject RK fields before the partner field -->
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <separator string="Radhekrishn — Government PO Details"/>
+                <group col="4">
+                    <field name="rk_institution_id" required="1"/>
+                    <field name="rk_rc_agreement_id"/>
+                    <field name="rk_vendor_company_id"/>
+                    <field name="rk_priority" widget="priority"/>
+                </group>
+                <group col="4">
+                    <field name="rk_po_number" placeholder="e.g. 10282600172"/>
+                    <field name="rk_po_prefix" placeholder="e.g. PO/2025-2026/3032"/>
+                    <field name="rk_po_approval_date"/>
+                    <field name="rk_rc_number" readonly="1"/>
+                </group>
+                <separator/>
+            </xpath>
+
+            <!-- Add notebook pages after existing order lines -->
+            <xpath expr="//notebook" position="inside">
+
+                <!-- STEP 1 & 2: Timeline -->
+                <page string="Timeline &amp; Dispatch" name="rk_dispatch">
+                    <group string="Receipt &amp; Forwarding">
+                        <group>
+                            <field name="rk_po_receipt_date"/>
+                            <field name="rk_forwarded_date"/>
+                            <field name="rk_vendor_acceptance_date"/>
+                        </group>
+                        <group>
+                            <field name="rk_supply_days"/>
+                            <field name="rk_extension_days"/>
+                            <field name="rk_supply_due_date"/>
+                            <field name="rk_supply_extended_due_date"/>
+                        </group>
+                    </group>
+                    <group string="Dispatch Details (Step 2)">
+                        <group>
+                            <field name="rk_dispatch_date"/>
+                            <field name="rk_lr_number"/>
+                            <field name="rk_transporter"/>
+                            <field name="rk_qty_dispatched"/>
+                        </group>
+                        <group>
+                            <field name="rk_batch_number"/>
+                            <field name="rk_mfg_date"/>
+                            <field name="rk_expiry_date"/>
+                        </group>
+                    </group>
+                    <group string="Delay &amp; Penalty">
+                        <group>
+                            <field name="rk_delay_days" readonly="1"
+                                   decoration-danger="rk_delay_days &gt; 0"/>
+                            <field name="rk_delay_weeks" readonly="1"/>
+                            <field name="rk_is_overdue_supply" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="rk_supply_penalty_pct" readonly="1"/>
+                            <field name="rk_supply_penalty_amount" readonly="1"
+                                   widget="monetary"/>
+                        </group>
+                    </group>
+                    <field name="rk_dispatch_notes" placeholder="Any dispatch notes..."/>
+                </page>
+
+                <!-- STEP 3: QC Clearance -->
+                <page string="QC Clearance" name="rk_qc">
+                    <group string="QC Details (Step 3)">
+                        <group>
+                            <field name="rk_qc_status"
+                                   decoration-success="rk_qc_status == 'approved'"
+                                   decoration-warning="rk_qc_status == 'partial'"
+                                   decoration-danger="rk_qc_status == 'rejected'"/>
+                            <field name="rk_qc_date"/>
+                            <field name="rk_qty_accepted"/>
+                            <field name="rk_qc_report_ref"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="rk_qc_status != 'rejected'">
+                        QC Rejected — contact vendor to arrange replacement supply.
+                    </div>
+                </page>
+
+                <!-- STEP 4: Payment from Institution -->
+                <page string="Institution Payment" name="rk_payment">
+                    <group string="Payment Received from Institution (Step 4)">
+                        <group>
+                            <field name="rk_bill_submitted_date"/>
+                            <field name="rk_inst_payment_date"/>
+                            <field name="rk_cheque_rtgs_number"/>
+                            <field name="rk_payment_instrument_date"/>
+                        </group>
+                        <group>
+                            <field name="rk_gross_amount_received" widget="monetary"/>
+                            <field name="rk_tds_deducted" widget="monetary"/>
+                            <field name="rk_security_deposit_deducted" widget="monetary"/>
+                            <field name="rk_penalty_deducted_by_inst" widget="monetary"/>
+                            <field name="rk_other_deductions" widget="monetary"/>
+                            <field name="rk_net_received_from_inst" readonly="1"
+                                   widget="monetary" class="fw-bold"/>
+                        </group>
+                    </group>
+                    <field name="rk_deduction_notes" placeholder="Details of deductions..."/>
+
+                    <group string="Claim Interest (Late Payment by Institution)">
+                        <group>
+                            <field name="rk_claim_days_elapsed" readonly="1"/>
+                            <field name="rk_claim_overdue_weeks" readonly="1"/>
+                            <field name="rk_is_claim_overdue" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="rk_claim_interest_amount" readonly="1"
+                                   widget="monetary"
+                                   decoration-danger="rk_claim_interest_amount &gt; 0"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="not rk_is_claim_overdue">
+                        Claim interest is accruing — institution payment is overdue beyond free period.
+                        Raise a debit note on the institution for ₹ <field name="rk_claim_interest_amount" readonly="1" nolabel="1"/> claim interest.
+                    </div>
+                </page>
+
+                <!-- STEP 5 & 6: Commission -->
+                <page string="Commission" name="rk_commission">
+                    <group string="Commission Calculation (Step 5)">
+                        <group>
+                            <field name="rk_commission_percent"/>
+                            <field name="rk_commission_base" readonly="1" widget="monetary"/>
+                            <field name="rk_commission_amount" readonly="1" widget="monetary"
+                                   class="fw-bold"/>
+                            <field name="rk_amount_remit_to_vendor" readonly="1"
+                                   widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="rk_proforma_invoice_number"/>
+                            <field name="rk_proforma_invoice_date"/>
+                            <field name="rk_sale_order_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Commission Received from Vendor (Step 6)">
+                        <group>
+                            <field name="rk_commission_received_date"/>
+                            <field name="rk_commission_received_amount" widget="monetary"/>
+                            <field name="rk_commission_bank_ref"/>
+                            <field name="rk_commission_pending" readonly="1" widget="monetary"
+                                   decoration-danger="rk_commission_pending &gt; 0"/>
+                        </group>
+                    </group>
+                </page>
+
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Purchase Order — List view (inherited)                        -->
+    <!-- ============================================================ -->
+    <record id="view_purchase_order_list_rk" model="ir.ui.view">
+        <field name="name">purchase.order.list.rk</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="rk_institution_id" optional="show"/>
+                <field name="rk_po_number" optional="show" string="Inst. PO No."/>
+                <field name="rk_stage" optional="show" widget="badge"
+                       decoration-info="rk_stage == 'po_received'"
+                       decoration-warning="rk_stage == 'forwarded' or rk_stage == 'dispatched'"
+                       decoration-success="rk_stage == 'qc_cleared' or rk_stage == 'inst_paid'"
+                       decoration-muted="rk_stage == 'closed'"/>
+                <field name="rk_supply_due_date" optional="show"
+                       decoration-danger="rk_is_overdue_supply == True"/>
+                <field name="rk_commission_amount" optional="show" string="Commission (₹)"/>
+                <field name="rk_commission_pending" optional="show" string="Pending (₹)"
+                       decoration-danger="rk_commission_pending &gt; 0"/>
+                <field name="rk_is_overdue_supply" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Purchase Order — Kanban view (6-stage pipeline)              -->
+    <!-- ============================================================ -->
+    <record id="view_purchase_order_kanban_rk" model="ir.ui.view">
+        <field name="name">purchase.order.kanban.rk</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="rk_stage" class="o_kanban_small_column">
+                <field name="rk_stage"/>
+                <field name="rk_institution_id"/>
+                <field name="rk_po_number"/>
+                <field name="amount_total"/>
+                <field name="rk_supply_due_date"/>
+                <field name="rk_is_overdue_supply"/>
+                <field name="rk_commission_amount"/>
+                <field name="rk_commission_pending"/>
+                <field name="partner_id"/>
+                <field name="rk_vendor_company_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_record_body">
+                                <strong>
+                                    <t t-esc="record.rk_po_number.value or record.name.value"/>
+                                </strong>
+                                <div class="text-muted small">
+                                    <t t-esc="record.rk_institution_id.value"/>
+                                </div>
+                                <div>
+                                    Vendor: <t t-esc="record.rk_vendor_company_id.value"/>
+                                </div>
+                                <div>
+                                    PO Value: ₹<t t-esc="record.amount_total.value"/>
+                                </div>
+                                <div t-if="record.rk_commission_amount.raw_value">
+                                    Commission: ₹<t t-esc="record.rk_commission_amount.value"/>
+                                </div>
+                                <div t-if="record.rk_supply_due_date.raw_value"
+                                     t-att-class="record.rk_is_overdue_supply.raw_value ? 'text-danger' : ''">
+                                    Due: <t t-esc="record.rk_supply_due_date.value"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Purchase Order — Search view (inherited)                      -->
+    <!-- ============================================================ -->
+    <record id="view_purchase_order_search_rk" model="ir.ui.view">
+        <field name="name">purchase.order.search.rk</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="rk_institution_id"/>
+                <field name="rk_po_number"/>
+                <field name="rk_vendor_company_id"/>
+                <field name="rk_rc_number"/>
+                <separator/>
+                <filter string="PO Received" name="stage_received"
+                        domain="[('rk_stage','=','po_received')]"/>
+                <filter string="Dispatched" name="stage_dispatched"
+                        domain="[('rk_stage','=','dispatched')]"/>
+                <filter string="QC Cleared" name="stage_qc"
+                        domain="[('rk_stage','=','qc_cleared')]"/>
+                <filter string="Supply Overdue" name="overdue_supply"
+                        domain="[('rk_is_overdue_supply','=',True)]"/>
+                <filter string="Claim Overdue" name="overdue_claim"
+                        domain="[('rk_is_claim_overdue','=',True)]"/>
+                <filter string="Commission Pending" name="commission_pending"
+                        domain="[('rk_commission_pending','&gt;',0)]"/>
+                <separator/>
+                <filter string="Closed" name="stage_closed"
+                        domain="[('rk_stage','=','closed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Institution" name="group_institution"
+                            context="{'group_by': 'rk_institution_id'}"/>
+                    <filter string="Stage" name="group_stage"
+                            context="{'group_by': 'rk_stage'}"/>
+                    <filter string="Vendor" name="group_vendor"
+                            context="{'group_by': 'rk_vendor_company_id'}"/>
+                    <filter string="RC Number" name="group_rc"
+                            context="{'group_by': 'rk_rc_number'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action: PO Pipeline -->
+    <record id="action_purchase_order_rk_pipeline" model="ir.actions.act_window">
+        <field name="name">PO Pipeline</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_stage_received': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No POs in pipeline yet</p>
+            <p>Create a PO when you receive one from an institution.</p>
+        </field>
+    </record>
+
+    <!-- Action: Overdue supply -->
+    <record id="action_po_overdue_supply" model="ir.actions.act_window">
+        <field name="name">Overdue Supply POs</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('rk_is_overdue_supply', '=', True), ('rk_stage', 'not in', ['closed'])]</field>
+        <field name="context">{'search_default_overdue_supply': 1}</field>
+    </record>
+
+    <!-- Action: Commission pending -->
+    <record id="action_po_commission_pending" model="ir.actions.act_window">
+        <field name="name">Commission Pending</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('rk_commission_pending', '&gt;', 0)]</field>
+    </record>
+
+</odoo>
