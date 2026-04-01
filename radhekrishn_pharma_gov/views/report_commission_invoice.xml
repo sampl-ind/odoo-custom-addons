@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report action -->
+    <record id="action_report_rk_commission_invoice" model="ir.actions.report">
+        <field name="name">Commission Proforma Invoice</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">radhekrishn_pharma_gov.report_commission_proforma_invoice</field>
+        <field name="report_file">radhekrishn_pharma_gov.report_commission_proforma_invoice</field>
+        <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- QWeb template -->
+    <template id="report_commission_proforma_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- Header -->
+                        <div class="row">
+                            <div class="col-6">
+                                <h2 style="color: #2c3e50;">COMMISSION PROFORMA INVOICE</h2>
+                                <p style="color: #666; font-size: 12px;">Radhekrishn Biotech<br/>
+                                Tarnaka, Secunderabad, Telangana — 500017<br/>
+                                GST: 36AGNPT7076N1ZB</p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <table class="table table-sm" style="font-size: 12px;">
+                                    <tr>
+                                        <td><strong>Proforma Invoice No.</strong></td>
+                                        <td><t t-esc="o.rk_proforma_invoice_number or 'DRAFT'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Date</strong></td>
+                                        <td><t t-esc="o.rk_proforma_invoice_date or ''"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PO Number</strong></td>
+                                        <td><t t-esc="o.rk_po_number or o.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>RC Number</strong></td>
+                                        <td><t t-esc="o.rk_rc_number or ''"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <!-- To / From -->
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <strong>To:</strong>
+                                <address>
+                                    <t t-esc="o.rk_vendor_company_id.name if o.rk_vendor_company_id else ''"/>
+                                    <br/>
+                                    <t t-if="o.rk_vendor_company_id and o.rk_vendor_company_id.street">
+                                        <t t-esc="o.rk_vendor_company_id.street"/><br/>
+                                    </t>
+                                    <t t-if="o.rk_vendor_company_id and o.rk_vendor_company_id.city">
+                                        <t t-esc="o.rk_vendor_company_id.city"/>
+                                    </t>
+                                    <t t-if="o.rk_vendor_company_id and o.rk_vendor_company_id.vat">
+                                        <br/>GST: <t t-esc="o.rk_vendor_company_id.vat"/>
+                                    </t>
+                                </address>
+                            </div>
+                            <div class="col-6">
+                                <strong>Against Supply to:</strong>
+                                <address>
+                                    <t t-esc="o.rk_institution_id.name if o.rk_institution_id else ''"/>
+                                    <t t-if="o.rk_institution_id and o.rk_institution_id.address">
+                                        <br/><t t-esc="o.rk_institution_id.address"/>
+                                    </t>
+                                    <t t-if="o.rk_institution_id and o.rk_institution_id.gst_number">
+                                        <br/>GST: <t t-esc="o.rk_institution_id.gst_number"/>
+                                    </t>
+                                </address>
+                            </div>
+                        </div>
+
+                        <!-- PO Details -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <table class="table table-bordered table-sm" style="font-size: 12px;">
+                                    <thead style="background: #2c3e50; color: white;">
+                                        <tr>
+                                            <th>PO No.</th>
+                                            <th>PO Date</th>
+                                            <th>QC Clearance</th>
+                                            <th>Institution Payment Date</th>
+                                            <th>Cheque / RTGS No.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><t t-esc="o.rk_po_number or o.name"/></td>
+                                            <td><t t-esc="o.rk_po_approval_date or ''"/></td>
+                                            <td><t t-esc="o.rk_qc_date or ''"/></td>
+                                            <td><t t-esc="o.rk_inst_payment_date or ''"/></td>
+                                            <td><t t-esc="o.rk_cheque_rtgs_number or ''"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Items supplied -->
+                        <h5 class="mt-3">Items Supplied</h5>
+                        <table class="table table-bordered table-sm" style="font-size: 12px;">
+                            <thead style="background: #f5f5f5;">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product (Generic)</th>
+                                    <th>Brand</th>
+                                    <th>Batch No.</th>
+                                    <th>Expiry</th>
+                                    <th class="text-right">Qty</th>
+                                    <th class="text-right">Unit Rate (₹)</th>
+                                    <th class="text-right">Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <tr>
+                                        <td><t t-esc="line_index + 1"/></td>
+                                        <td><t t-esc="line.product_id.name"/></td>
+                                        <td><t t-esc="line.rk_brand_name or ''"/></td>
+                                        <td><t t-esc="o.rk_batch_number or ''"/></td>
+                                        <td><t t-esc="o.rk_expiry_date or ''"/></td>
+                                        <td class="text-right"><t t-esc="line.product_qty"/> <t t-esc="line.product_uom.name"/></td>
+                                        <td class="text-right"><t t-esc="'%.4f' % line.price_unit"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.price_subtotal"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Commission calculation -->
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <h5>Payment Received from Institution</h5>
+                                <table class="table table-sm" style="font-size: 12px;">
+                                    <tr>
+                                        <td>Gross Amount Received</td>
+                                        <td class="text-right">₹ <t t-esc="'%,.2f' % o.rk_gross_amount_received"/></td>
+                                    </tr>
+                                    <t t-if="o.rk_tds_deducted">
+                                    <tr>
+                                        <td style="color: #c00;">Less: TDS Deducted</td>
+                                        <td class="text-right" style="color: #c00;">₹ <t t-esc="'%,.2f' % o.rk_tds_deducted"/></td>
+                                    </tr>
+                                    </t>
+                                    <t t-if="o.rk_security_deposit_deducted">
+                                    <tr>
+                                        <td style="color: #c00;">Less: Security Deposit</td>
+                                        <td class="text-right" style="color: #c00;">₹ <t t-esc="'%,.2f' % o.rk_security_deposit_deducted"/></td>
+                                    </tr>
+                                    </t>
+                                    <t t-if="o.rk_penalty_deducted_by_inst">
+                                    <tr>
+                                        <td style="color: #c00;">Less: Penalty Deducted</td>
+                                        <td class="text-right" style="color: #c00;">₹ <t t-esc="'%,.2f' % o.rk_penalty_deducted_by_inst"/></td>
+                                    </tr>
+                                    </t>
+                                    <tr style="border-top: 2px solid #333; font-weight: bold;">
+                                        <td>Net Received</td>
+                                        <td class="text-right">₹ <t t-esc="'%,.2f' % o.rk_net_received_from_inst"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <h5>Commission Statement</h5>
+                                <table class="table table-sm" style="font-size: 12px; border: 2px solid #2c3e50;">
+                                    <tr style="background: #2c3e50; color: white;">
+                                        <td colspan="2"><strong>Radhekrishn Biotech — Commission</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Commission Base</td>
+                                        <td class="text-right">₹ <t t-esc="'%,.2f' % o.rk_commission_base"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Commission Rate</td>
+                                        <td class="text-right"><t t-esc="'%.2f' % o.rk_commission_percent"/>%</td>
+                                    </tr>
+                                    <tr style="background: #fff3cd; font-weight: bold; font-size: 14px;">
+                                        <td>Commission Amount</td>
+                                        <td class="text-right">₹ <t t-esc="'%,.2f' % o.rk_commission_amount"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amount to Remit to Vendor</td>
+                                        <td class="text-right">₹ <t t-esc="'%,.2f' % o.rk_amount_remit_to_vendor"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Claim interest notice if any -->
+                        <t t-if="o.rk_claim_interest_amount > 0">
+                            <div class="alert" style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; margin-top: 16px;">
+                                <strong>Note:</strong> Claim interest of ₹ <t t-esc="'%,.2f' % o.rk_claim_interest_amount"/>
+                                has accrued on delayed payment by institution
+                                (<t t-esc="o.rk_claim_overdue_weeks"/> week(s) overdue at
+                                <t t-esc="o.rk_rc_agreement_id.claim_penalty_percent_per_week if o.rk_rc_agreement_id else 0.5"/>% per week).
+                                A separate debit note will be raised.
+                            </div>
+                        </t>
+
+                        <!-- Footer -->
+                        <div class="row mt-4" style="font-size: 11px; color: #666; border-top: 1px solid #ccc; padding-top: 12px;">
+                            <div class="col-6">
+                                <p>This is a proforma invoice. Subject to final settlement as per agreed terms.<br/>
+                                Bill not claimed earlier. — Authorised signature with seal required on original invoice.</p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p>For <strong>Radhekrishn Biotech</strong></p>
+                                <br/><br/>
+                                <p>Authorised Signatory</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
