@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Template 1: Forward PO to Vendor                             -->
+    <!-- Used when clicking "Mark Forwarded" on a PO                  -->
+    <!-- ============================================================ -->
+    <record id="email_template_po_to_vendor" model="mail.template">
+        <field name="name">Forward PO to Vendor</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="subject">PO {{ object.rk_po_number or object.name }} — {{ object.rk_institution_id.name }} औ Please arrange supply</field>
+        <field name="email_from">{{ (user.email_formatted or 'no-reply@radhekrishn.in') }}</field>
+        <field name="email_to">{{ object.rk_vendor_company_id.email or '' }}</field>
+        <field name="partner_to">{{ object.rk_vendor_company_id.id }}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<p>Dear Team,</p>
+<p>Please find below the Purchase Order details for your reference and action.</p>
+
+<table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Institution</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_institution_id.name }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">PO Number</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_po_number or object.name }}</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">PO Approval Date</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_po_approval_date or '' }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">RC Number</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_rc_number or '' }}</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Supply Due Date</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00; font-weight: bold;">{{ object.rk_supply_due_date or 'To be calculated from acceptance date' }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Total PO Value</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">₹ {{ '{:,.2f}'.format(object.amount_total) }}</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Destination</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_institution_id.address or object.rk_institution_id.cds_code or '' }}</td>
+    </tr>
+</table>
+
+<p><strong>Items Ordered:</strong></p>
+<table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
+    <thead>
+        <tr style="background: #2c3e50; color: white;">
+            <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: left;">Product</th>
+            <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">Qty</th>
+            <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">Unit Rate (₹)</th>
+            <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">Total (₹)</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for line in object.order_line:
+        <tr>
+            <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ line.product_id.name }} {% if line.rk_brand_name %}({{ line.rk_brand_name }}){% endif %}</td>
+            <td style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">{{ line.product_qty }} {{ line.product_uom.name }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">{{ '{:,.4f}'.format(line.price_unit) }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">{{ '{:,.2f}'.format(line.price_subtotal) }}</td>
+        </tr>
+        % endfor
+    </tbody>
+</table>
+
+<p><strong>Important ESI Supply Conditions:</strong></p>
+<ul style="line-height: 1.8;">
+    <li>Please confirm acceptance of this PO within <strong>7 days</strong> of receipt.</li>
+    <li>Supply to be completed within <strong>42 days</strong> from acceptance date.</li>
+    <li>Penalty: <strong>2% of PO value per week</strong> of delay (max 10% of PO value).</li>
+    <li>MRP must be <strong>masked/blocked</strong> on all outer cartons and individual strips/bottles.</li>
+    <li>Each item must be stamped: <em>"ESI supply not for sale"</em>.</li>
+    <li>Batch number, expiry date, manufacturing date must be mentioned on the invoice.</li>
+    <li>Drug analysis report (batch-wise) to be uploaded on eAushadhi portal.</li>
+    <li>Supply only to destination: <strong>{{ object.rk_institution_id.cds_code or object.rk_institution_id.name }}</strong>.</li>
+</ul>
+
+<p>Please send us the following on dispatch:</p>
+<ol style="line-height: 1.8;">
+    <li>LR / GR Number and Transporter name</li>
+    <li>Batch Number, Manufacturing Date, Expiry Date</li>
+    <li>Quantity dispatched</li>
+    <li>Copy of invoice</li>
+    <li>Drug analysis report for the batch</li>
+</ol>
+
+<p>For any queries, please contact us immediately.</p>
+
+<p>Regards,<br/>
+<strong>{{ user.name }}</strong><br/>
+Radhekrishn Biotech<br/>
+Tarnaka, Secunderabad, Telangana<br/>
+GST: 36AGNPT7076N1ZB</p>
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="False"/>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Template 2: Supply Overdue Alert                             -->
+    <!-- ============================================================ -->
+    <record id="email_template_supply_overdue" model="mail.template">
+        <field name="name">Supply Overdue Alert — Vendor</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="subject">URGENT: Supply Overdue — PO {{ object.rk_po_number }} — {{ object.rk_institution_id.name }}</field>
+        <field name="email_from">{{ (user.email_formatted or 'no-reply@radhekrishn.in') }}</field>
+        <field name="email_to">{{ object.rk_vendor_company_id.email or '' }}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<div style="background: #c0392b; color: white; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px;">
+    <strong>URGENT — Supply is overdue by {{ object.rk_delay_days }} days</strong>
+</div>
+
+<p>Dear Team,</p>
+<p>This is an urgent reminder that the supply against the below PO is <strong>overdue by {{ object.rk_delay_days }} days ({{ object.rk_delay_weeks }} week(s))</strong>.</p>
+
+<table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">PO Number</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00;">{{ object.rk_po_number }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Institution</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_institution_id.name }}</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Supply Due Date</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00;">{{ object.rk_supply_due_date }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Delay</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00; font-weight: bold;">{{ object.rk_delay_days }} days ({{ object.rk_delay_weeks }} week(s))</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Penalty Accrued</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00; font-weight: bold;">₹ {{ '{:,.2f}'.format(object.rk_supply_penalty_amount) }} ({{ '{:.1f}'.format(object.rk_supply_penalty_pct) }}% of PO value)</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Extended Deadline</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_supply_extended_due_date }} (last date for supply)</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">PO Value</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">₹ {{ '{:,.2f}'.format(object.amount_total) }}</td>
+    </tr>
+</table>
+
+<p><strong>Action required immediately:</strong></p>
+<ul style="line-height: 1.8;">
+    <li>Dispatch the material and send LR number today.</li>
+    <li>If supply cannot be executed, please communicate immediately to obtain extension approval from the institution's Nodal Officer.</li>
+    <li>Extension requires prior sanction from the Nodal Officer — without approval, full penalty applies.</li>
+    <li>Non-supply beyond extended deadline may result in risk purchase at your expense and debarment from future rate contracts.</li>
+</ul>
+
+<p>Please respond to this email with your dispatch plan urgently.</p>
+
+<p>Regards,<br/>
+<strong>{{ user.name }}</strong><br/>
+Radhekrishn Biotech</p>
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Template 3: Claim Interest Notice to Institution              -->
+    <!-- ============================================================ -->
+    <record id="email_template_claim_interest" model="mail.template">
+        <field name="name">Claim Interest Notice — Institution</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="subject">Claim Interest Notice — PO {{ object.rk_po_number }} — Payment Overdue by {{ object.rk_claim_overdue_weeks }} Week(s)</field>
+        <field name="email_from">{{ (user.email_formatted or 'no-reply@radhekrishn.in') }}</field>
+        <field name="email_to">{{ object.rk_institution_id.email or '' }}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<p>To,<br/>
+The Nodal Officer,<br/>
+{{ object.rk_institution_id.name }}<br/>
+{% if object.rk_institution_id.cds_code %}{{ object.rk_institution_id.cds_code }}{% endif %}</p>
+
+<p>Sub: Claim interest on delayed payment — PO No. {{ object.rk_po_number }} — reg.</p>
+<p>Ref: PO Approval Date: {{ object.rk_po_approval_date }}, QC Clearance Date: {{ object.rk_qc_date or 'N/A' }}</p>
+<hr/>
+
+<p>Dear Sir/Madam,</p>
+
+<p>This is to bring to your kind attention that the payment against the below Purchase Order is overdue by <strong>{{ object.rk_claim_overdue_weeks }} week(3s)</strong> beyond the agreed claim free period of { { object.rk_rc_agreement_id.claim_free_days if object.rk_rc_agreement_id else 90 }} days.</p>
+
+<table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">PO Number</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_po_number }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">RC Number</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_rc_number }}</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">QC Clearance Date</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_qc_date or 'N/A' }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Days Elapsed Since QC</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_claim_days_elapsed }} days</td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Claim Free Period</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_rc_agreement_id.claim_free_days if object.rk_rc_agreement_id else 90 }} days</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Overdue Weeks</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00; font-weight: bold;">{{ object.rk_claim_overdue_weeks }} week(s) </td>
+    </tr>
+    <tr style="background: #f5f5f5;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Bill Amount</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">₹ {{ '{:,.2f}'.format(object.rk_gross_amount_received or object.amount_total) }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Claim Interest Rate</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ object.rk_rc_agreement_id.claim_penalty_percent_per_week if object.rk_rc_agreement_id else '0.5' }}% per week</td>
+    </tr>
+    <tr style="background: #fff3cd;">
+        <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: bold;">Claim Interest Accrued</td>
+        <td style="padding: 8px 12px; border: 1px solid #ddd; color: #c00; font-weight: bold; font-size: 16px;">₹ {{ '{:,.2f}'.format(object.rk_claim_interest_amount) }}</td>
+    </tr>
+</table>
+
+<p>Kindly arrange to release the payment along with the applicable claim interest at the earliest. A formal debit note for the claim interest will be raised separately.</p>
+
+<p>Thanking you,</p>
+<p>Yours faithfully,<br/>
+<strong>{{ user.name }}</strong><br/>
+Radhekrishn Biotech<br/>
+Tarnaka, Secunderabad, Telangana — 500017<br/>
+GST: 36AGNPT7076N1ZB</p>
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+
+</odoo>
