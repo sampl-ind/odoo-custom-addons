@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report action: model = purchase.order, docs = filtered POs from wizard -->
+    <record id="action_report_rk_commission_summary" model="ir.actions.report">
+        <field name="name">Commission Summary</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">radhekrishn_pharma_gov.report_commission_summary_template</field>
+        <field name="report_file">radhekrishn_pharma_gov.report_commission_summary_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- QWeb: docs = purchase.order recordset, grouped by vendor -->
+    <template id="report_commission_summary_template">
+        <t t-call="web.html_container">
+            <t t-set="all_vendors" t-value="docs.mapped('rk_vendor_company_id')"/>
+            <t t-foreach="all_vendors" t-as="vendor">
+                <t t-set="vendor_pos" t-value="docs.filtered(lambda p: p.rk_vendor_company_id.id == vendor.id)"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <div class="row">
+                            <div class="col-8">
+                                <h2 style="color:#1a735c">COMMISSION SUMMARY STATEMENT</h2>
+                                <p style="font-size:11px;color:#666">
+                                    Radhekrishn Biotech · Tarnaka, Secunderabad, Telangana — 500017<br/>
+                                    GST: 36AGNPT7076N1ZB
+                                </p>
+                            </div>
+                            <div class="col-4 text-end">
+                                <p style="font-size:11px">
+                                    <strong>Vendor:</strong> <t t-esc="vendor.name"/><br/>
+                                    <t t-if="vendor.vat">GST: <t t-esc="vendor.vat"/><br/></t>
+                                    <t t-if="vendor.city"><t t-esc="vendor.city"/></t>
+                                </p>
+                            </div>
+                        </div>
+                        <hr style="border-color:#1a735c"/>
+
+                        <!-- KPI boxes -->
+                        <div class="row mt-2 mb-3" style="text-align:center">
+                            <div class="col-3">
+                                <div style="border:1px solid #dee2e6;border-radius:6px;padding:10px">
+                                    <div style="font-size:10px;color:#666">Total POs</div>
+                                    <div style="font-size:22px;font-weight:bold"><t t-esc="len(vendor_pos)"/></div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div style="border:1px solid #dee2e6;border-radius:6px;padding:10px">
+                                    <div style="font-size:10px;color:#666">PO Value</div>
+                                    <div style="font-size:15px;font-weight:bold">₹ <t t-esc="'{:,.0f}'.format(sum(vendor_pos.mapped('amount_total')))"/></div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div style="border:1px solid #dee2e6;border-radius:6px;padding:10px;background:#fff3cd">
+                                    <div style="font-size:10px;color:#856404">Commission Earned</div>
+                                    <div style="font-size:15px;font-weight:bold;color:#856404">₹ <t t-esc="'{:,.0f}'.format(sum(vendor_pos.mapped('rk_commission_amount')))"/></div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div style="border:1px solid #dee2e6;border-radius:6px;padding:10px;background:#f8d7da">
+                                    <div style="font-size:10px;color:#842029">Commission Pending</div>
+                                    <div style="font-size:15px;font-weight:bold;color:#842029">₹ <t t-esc="'{:,.0f}'.format(sum(vendor_pos.mapped('rk_commission_pending')))"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PO detail table -->
+                        <h6 style="color:#1a735c;border-bottom:1px solid #1a735c;padding-bottom:3px">Purchase Order Details</h6>
+                        <table class="table table-bordered table-sm" style="font-size:9px">
+                            <thead style="background:#1a735c;color:white">
+                                <tr>
+                                    <th>#</th><th>PO No.</th><th>RC</th><th>Institution</th>
+                                    <th>Brand</th><th>PO Date</th><th>QC Date</th><th>Stage</th>
+                                    <th class="text-end">PO Value</th>
+                                    <th class="text-end">Gross Rcvd</th>
+                                    <th class="text-end">Deductions</th>
+                                    <th class="text-end">Net Rcvd</th>
+                                    <th class="text-end">Comm%</th>
+                                    <th class="text-end">Commission</th>
+                                    <th class="text-end">Rcvd</th>
+                                    <th class="text-end" style="color:#ffc107">Pending</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="vendor_pos" t-as="po">
+                                    <t t-set="po_ded" t-value="(po.rk_tds_deducted or 0) + (po.rk_security_deposit_deducted or 0) + (po.rk_penalty_deducted_by_inst or 0) + (po.rk_other_deductions or 0)"/>
+                                    <t t-set="stage_label" t-value="{'po_received':'Received','forwarded':'Forwarded','dispatched':'Dispatched','qc_cleared':'QC Cleared','inst_paid':'Inst Paid','closed':'Closed'}.get(po.rk_stage, po.rk_stage)"/>
+                                    <tr t-att-style="'background:#fff8f0' if (po.rk_commission_pending or 0) > 0 else ''">
+                                        <td><t t-esc="po_index + 1"/></td>
+                                        <td style="font-weight:bold"><t t-esc="po.rk_po_number or po.name"/></td>
+                                        <td><t t-esc="po.rk_rc_number or ''"/></td>
+                                        <td><t t-esc="po.rk_institution_id.name if po.rk_institution_id else ''"/></td>
+                                        <td><t t-esc="', '.join(l.rk_brand_name for l in po.order_line if l.rk_brand_name) or ''"/></td>
+                                        <td><t t-esc="str(po.rk_po_approval_date) if po.rk_po_approval_date else ''"/></td>
+                                        <td><t t-esc="str(po.rk_qc_date) if po.rk_qc_date else ''"/></td>
+                                        <td><t t-esc="stage_label"/></td>
+                                        <td class="text-end"><t t-esc="'{:,.2f}'.format(po.amount_total or 0)"/></td>
+                                        <td class="text-end"><t t-esc="'{:,.2f}'.format(po.rk_gross_amount_received or 0)"/></td>
+                                        <td class="text-end" style="color:#c00"><t t-esc="'{:,.2f}'.format(po_ded)"/></td>
+                                        <td class="text-end"><t t-esc="'{:,.2f}'.format(po.rk_net_received_from_inst or 0)"/></td>
+                                        <td class="text-end"><t t-esc="'{:.1f}'.format(po.rk_commission_percent or 0)"/>%</td>
+                                        <td class="text-end" style="font-weight:bold;color:#1a735c"><t t-esc="'{:,.2f}'.format(po.rk_commission_amount or 0)"/></td>
+                                        <td class="text-end"><t t-esc="'{:,.2f}'.format(po.rk_commission_received_amount or 0)"/></td>
+                                        <td class="text-end" t-att-style="'color:#c00;font-weight:bold' if (po.rk_commission_pending or 0) > 0 else ''">
+                                            <t t-esc="'{:,.2f}'.format(po.rk_commission_pending or 0)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <!-- Totals -->
+                                <tr style="background:#f0f7f4;font-weight:bold;border-top:2px solid #1a735c">
+                                    <td colspan="8" class="text-end">TOTAL</td>
+                                    <td class="text-end"><t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped('amount_total')))"/></td>
+                                    <td class="text-end"><t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped('rk_gross_amount_received')))"/></td>
+                                    <td class="text-end" style="color:#c00">
+                                        <t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped(lambda p: (p.rk_tds_deducted or 0)+(p.rk_security_deposit_deducted or 0)+(p.rk_penalty_deducted_by_inst or 0)+(p.rk_other_deductions or 0))))"/>
+                                    </td>
+                                    <td class="text-end"><t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped('rk_net_received_from_inst')))"/></td>
+                                    <td></td>
+                                    <td class="text-end" style="background:#fff3cd;color:#856404"><t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped('rk_commission_amount')))"/></td>
+                                    <td class="text-end"><t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped('rk_commission_received_amount')))"/></td>
+                                    <td class="text-end" style="background:#f8d7da;color:#842029"><t t-esc="'{:,.2f}'.format(sum(vendor_pos.mapped('rk_commission_pending')))"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Claim interest -->
+                        <t t-set="claim_pos" t-value="vendor_pos.filtered(lambda p: (p.rk_claim_interest_amount or 0) > 0)"/>
+                        <t t-if="claim_pos">
+                            <h6 style="color:#c00;margin-top:10px;border-bottom:1px solid #c00;padding-bottom:3px">Claim Interest Accruing</h6>
+                            <table class="table table-bordered table-sm" style="font-size:9px">
+                                <thead style="background:#842029;color:white">
+                                    <tr>
+                                        <th>PO No.</th><th>Institution</th><th>QC Date</th>
+                                        <th>Free Period</th><th>Elapsed</th><th>Overdue Weeks</th>
+                                        <th class="text-end">Bill Amt</th><th class="text-end">Interest</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="claim_pos" t-as="po">
+                                        <tr>
+                                            <td><t t-esc="po.rk_po_number or po.name"/></td>
+                                            <td><t t-esc="po.rk_institution_id.name if po.rk_institution_id else ''"/></td>
+                                            <td><t t-esc="str(po.rk_qc_date) if po.rk_qc_date else ''"/></td>
+                                            <td><t t-esc="po.rk_rc_agreement_id.claim_free_days if po.rk_rc_agreement_id else 90"/> d</td>
+                                            <td><t t-esc="po.rk_claim_days_elapsed"/> d</td>
+                                            <td><t t-esc="po.rk_claim_overdue_weeks"/> wk</td>
+                                            <td class="text-end"><t t-esc="'{:,.2f}'.format(po.rk_gross_amount_received or po.amount_total or 0)"/></td>
+                                            <td class="text-end" style="font-weight:bold;color:#c00"><t t-esc="'{:,.2f}'.format(po.rk_claim_interest_amount or 0)"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr style="font-weight:bold;background:#f8d7da">
+                                        <td colspan="7" class="text-end">Total Claim Interest</td>
+                                        <td class="text-end" style="color:#c00">₹ <t t-esc="'{:,.2f}'.format(sum(claim_pos.mapped('rk_claim_interest_amount')))"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Footer -->
+                        <div class="row mt-3" style="font-size:9px;color:#666;border-top:1px solid #ccc;padding-top:8px">
+                            <div class="col-7">
+                                Commission amounts are as per agreed rate contract margins.
+                                System-generated from Radhekrishn Biotech ERP.
+                            </div>
+                            <div class="col-5 text-end">
+                                For <strong>Radhekrishn Biotech</strong><br/><br/><br/>
+                                Authorised Signatory
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
